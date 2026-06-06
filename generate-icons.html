@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ApplyDash — Generate Icons</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      gap: 32px;
+    }
+    h1 { color: #10b981; margin: 0; font-size: 22px; letter-spacing: -0.5px; }
+    p { color: #94a3b8; margin: 0; font-size: 14px; }
+    .icons { display: flex; gap: 40px; align-items: flex-end; flex-wrap: wrap; justify-content: center; }
+    .icon-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    canvas { border-radius: 6px; image-rendering: pixelated; }
+    button {
+      background: #059669;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    button:hover { background: #10b981; }
+    label { color: #94a3b8; font-size: 12px; }
+    .download-all {
+      background: #064e3b;
+      border: 1px solid #059669;
+      color: #10b981;
+      padding: 12px 32px;
+      font-size: 15px;
+      border-radius: 10px;
+    }
+    .download-all:hover { background: #065f46; }
+    .instructions {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px 28px;
+      max-width: 480px;
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+    .instructions strong { color: #e2e8f0; }
+    code {
+      background: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #10b981;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>◈ ApplyDash Icon Generator</h1>
+<p>Click each button to download the icon at that size, then move them into <code>public/icons/</code></p>
+
+<div class="icons">
+  <div class="icon-wrap">
+    <label>128 × 128</label>
+    <canvas id="c128" width="128" height="128"></canvas>
+    <button onclick="download('c128', 'icon128.png')">↓ icon128.png</button>
+  </div>
+  <div class="icon-wrap">
+    <label>48 × 48</label>
+    <canvas id="c48" width="48" height="48"></canvas>
+    <button onclick="download('c48', 'icon48.png')">↓ icon48.png</button>
+  </div>
+  <div class="icon-wrap">
+    <label>16 × 16</label>
+    <canvas id="c16" width="16" height="16" style="width:64px;height:64px;"></canvas>
+    <button onclick="download('c16', 'icon16.png')">↓ icon16.png</button>
+  </div>
+</div>
+
+<div class="instructions">
+  <strong>After downloading:</strong><br/>
+  1. Create folder: <code>ApplyDash/public/icons/</code><br/>
+  2. Move all 3 PNGs into that folder<br/>
+  3. Update <code>manifest.json</code> to reference them (see below)<br/>
+  4. Run <code>npm run dev</code> again to rebuild
+</div>
+
+<script>
+  // ─── Draw icon on a canvas ───────────────────────────────────────────────
+  function drawIcon(canvas) {
+    const s = canvas.width
+    const ctx = canvas.getContext('2d')
+    const r = s * 0.18  // corner radius
+
+    // Background — dark gradient
+    const grad = ctx.createLinearGradient(0, 0, s, s)
+    grad.addColorStop(0, '#064e3b')
+    grad.addColorStop(1, '#111827')
+
+    // Rounded rect background
+    ctx.beginPath()
+    ctx.moveTo(r, 0)
+    ctx.lineTo(s - r, 0)
+    ctx.quadraticCurveTo(s, 0, s, r)
+    ctx.lineTo(s, s - r)
+    ctx.quadraticCurveTo(s, s, s - r, s)
+    ctx.lineTo(r, s)
+    ctx.quadraticCurveTo(0, s, 0, s - r)
+    ctx.lineTo(0, r)
+    ctx.quadraticCurveTo(0, 0, r, 0)
+    ctx.closePath()
+    ctx.fillStyle = grad
+    ctx.fill()
+
+    if (s <= 16) {
+      // 16px — just a bold "A" glyph, no frills
+      ctx.fillStyle = '#10b981'
+      ctx.font = `bold ${s * 0.72}px Arial`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('A', s / 2, s / 2 + s * 0.04)
+      return
+    }
+
+    // ── Larger sizes: geometric "A" path ──────────────────────────────────
+    const cx = s / 2
+    const top = s * 0.14
+    const bottom = s * 0.82
+    const leftBase = s * 0.12
+    const rightBase = s * 0.88
+    const crossY = s * 0.60
+    const crossLeft = s * 0.28
+    const crossRight = s * 0.72
+    const strokeW = s * 0.10
+
+    ctx.strokeStyle = '#10b981'
+    ctx.lineWidth = strokeW
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+
+    // Left leg of A
+    ctx.beginPath()
+    ctx.moveTo(cx, top)
+    ctx.lineTo(leftBase, bottom)
+    ctx.stroke()
+
+    // Right leg of A
+    ctx.beginPath()
+    ctx.moveTo(cx, top)
+    ctx.lineTo(rightBase, bottom)
+    ctx.stroke()
+
+    // Crossbar
+    ctx.lineWidth = strokeW * 0.85
+    ctx.beginPath()
+    ctx.moveTo(crossLeft, crossY)
+    ctx.lineTo(crossRight, crossY)
+    ctx.stroke()
+
+    // Subtle glow dot at apex
+    if (s >= 48) {
+      ctx.beginPath()
+      ctx.arc(cx, top, strokeW * 0.55, 0, Math.PI * 2)
+      ctx.fillStyle = '#34d399'
+      ctx.fill()
+    }
+  }
+
+  // ─── Init all canvases ───────────────────────────────────────────────────
+  ;[128, 48, 16].forEach(size => {
+    const canvas = document.getElementById(`c${size}`)
+    drawIcon(canvas)
+  })
+
+  // ─── Download helper ─────────────────────────────────────────────────────
+  function download(canvasId, filename) {
+    const canvas = document.getElementById(canvasId)
+    const link = document.createElement('a')
+    link.download = filename
+    link.href = canvas.toDataURL('image/png')
+    link.click()
+  }
+</script>
+
+</body>
+</html>

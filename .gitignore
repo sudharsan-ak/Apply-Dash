@@ -1,0 +1,23 @@
+node_modules/
+
+# Source maps (too large, not useful for a Chrome extension)
+dist/assets/*.map
+
+# Personal profile data — contains real name, email, address, phone
+src/shared/storage.ts
+
+# Resume PDF — personal document
+*.pdf
+public/*.pdf
+src/assets/*.pdf
+
+# Build artifacts that change every build (content-addressed filenames)
+# Keep dist/ itself so the extension can be loaded unpacked without building
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+
+# Claude Code session files
+.claude/
