@@ -2,6 +2,9 @@
 
 A Chrome extension that autofills job applications on Greenhouse, Lever, and Ashby — built as a personal Simplify replacement.
 
+<img width="1209" height="705" alt="image" src="https://github.com/user-attachments/assets/7155254a-d713-4e8d-af33-76173d43b3f1" />
+
+
 ## Setup
 
 **1. Install dependencies and build**
